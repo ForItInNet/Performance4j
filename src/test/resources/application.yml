@@ -1,0 +1,9 @@
+performance4j:
+  enabled: true
+  history:
+    enabled: true
+    size: 50
+    datasource:
+      url: url
+      username: username
+      password: password

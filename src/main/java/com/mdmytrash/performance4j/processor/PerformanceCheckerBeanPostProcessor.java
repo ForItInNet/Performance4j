@@ -1,13 +1,10 @@
 package com.mdmytrash.performance4j.processor;
 
-import com.mdmytrash.performance4j.annotetion.EnablePerformanceChecker;
-import com.mdmytrash.performance4j.factory.PerformanceCheckerFactory;
-import com.mdmytrash.performance4j.service.PerformanceCheckerService;
-
-import javassist.util.proxy.ProxyFactory;
-
+import com.mdmytrash.performance4j.annotetion.PerformanceChecker;
+import com.mdmytrash.performance4j.service.impl.PerformanceCheckerProxyService;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -15,40 +12,39 @@ import java.lang.reflect.Method;
 @Component
 public class PerformanceCheckerBeanPostProcessor implements BeanPostProcessor {
 
-    private final PerformanceCheckerFactory performanceCheckerFactory;
-    private final PerformanceCheckerService performanceCheckerService;
+    private final PerformanceCheckerProxyService performanceCheckerProxyService;
 
-    public PerformanceCheckerBeanPostProcessor(PerformanceCheckerFactory performanceCheckerFactory) {
+    @Lazy
+    public PerformanceCheckerBeanPostProcessor(PerformanceCheckerProxyService performanceCheckerProxyService) {
 
-        this.performanceCheckerFactory = performanceCheckerFactory;
-        this.performanceCheckerService = performanceCheckerFactory.getPerformanceCheckerService();
+        this.performanceCheckerProxyService = performanceCheckerProxyService;
     }
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 
-        Class<?> originalClass = bean.getClass();
-
-        ProxyFactory proxyFactory = new ProxyFactory();
-        proxyFactory.setSuperclass(bean.getClass());
-
-        for (Method method : bean.getClass().getMethods()) {
-
+        if(hasEnabledPerformanceChecker(bean)) {
+            return performanceCheckerProxyService.createProxy(bean, beanName);
         }
 
-
-        return BeanPostProcessor.super.postProcessBeforeInitialization(bean, beanName);
+        return bean;
     }
 
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+    private boolean hasEnabledPerformanceChecker(Object bean) {
 
+        Class<?> beanClass = bean.getClass();
+        PerformanceChecker performanceCheckerAnnotation = beanClass.isAnnotationPresent(PerformanceChecker.class) ? beanClass.getAnnotation(PerformanceChecker.class) : null;
 
-        return BeanPostProcessor.super.postProcessAfterInitialization(bean, beanName);
-    }
+        if(performanceCheckerAnnotation != null && !performanceCheckerAnnotation.enabled()) {
+            return false;
+        }
 
-    private boolean isPerformanceCheckerEnabled() {
+        for(Method method: beanClass.getMethods()) {
+            if(method.isAnnotationPresent(PerformanceChecker.class) && method.getAnnotation(PerformanceChecker.class).enabled()) {
+                return true;
+            }
+        }
 
-        return true;
+        return false;
     }
 }

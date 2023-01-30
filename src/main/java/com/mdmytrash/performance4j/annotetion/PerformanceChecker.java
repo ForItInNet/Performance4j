@@ -11,4 +11,5 @@ public @interface PerformanceChecker {
 
     String name() default "";
     String group() default "";
+    boolean enabled() default true;
 }

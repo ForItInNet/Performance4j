@@ -1,0 +1,28 @@
+{
+  "properties": [
+    {
+      "name": "performance4j.history.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Description for performance4j.history.enabled."
+    },
+    {
+      "name": "performance4j.history.size",
+      "type": "java.lang.Integer",
+      "description": "Description for performance4j.history.size."
+    },
+    {
+      "name": "performance4j.history.datasource.url",
+      "type": "java.lang.String",
+      "description": "Description for performance4j.history.datasource.url."
+    },
+    {
+      "name": "performance4j.history.datasource.username",
+      "type": "java.lang.String",
+      "description": "Description for performance4j.history.datasource.username."
+    },
+    {
+      "name": "performance4j.history.datasource.password",
+      "type": "java.lang.String",
+      "description": "Description for performance4j.history.datasource.password."
+    }
+  ] }
