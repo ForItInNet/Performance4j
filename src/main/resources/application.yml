@@ -1,5 +1,4 @@
 performance4j:
-  enabled: true
   history:
     enabled: true
     size: 50
